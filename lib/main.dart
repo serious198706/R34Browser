@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:r34_browser/detail_page.dart';
 import 'package:r34_browser/themes.dart';
@@ -85,7 +87,20 @@ class _MainPageState extends State<MainPage>
 
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
+
+    init();
   }
+
+  void init() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await FlutterDownloader.initialize();
+    FlutterDownloader.registerCallback((id, status, progress) {
+      if (status == DownloadTaskStatus.complete) {
+        Fluttertoast.showToast(msg: 'Download complete');
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,11 +152,10 @@ class _MainPageState extends State<MainPage>
                 itemBuilder: _buildImage,
                 sourceList: _repository,
                 padding: EdgeInsets.all(8.0),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                extendedListDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  crossAxisSpacing: 8.0,
-                  mainAxisSpacing: 8.0,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
                 ),
               ),
             ),
@@ -177,9 +191,44 @@ class _MainPageState extends State<MainPage>
     chips.add(Chip(
       label: Text('ADD'),
       deleteIcon: Icon(Icons.add, size: 12),
-      onDeleted: () {
+      onDeleted: () async {
+        TextEditingController tc = TextEditingController();
+        var tag = await showDialog<String>(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: Text('Input Tag'),
+              content: TextField(
+                controller: tc,
+              ),
+              actions: [
+                FlatButton(
+                  child: Text('CANCEL', style: TextStyle(color: Colors.grey)),
+                  onPressed: () {
+                    Navigator.of(context).pop('');
+                  },
+                ),
+                FlatButton(
+                  child: Text('ADD', style: TextStyle(color: textColor)),
+                  onPressed: () {
+                    if (tc.text == null || tc.text.isEmpty) {
+                      return;
+                    } else {
+                      Navigator.of(context).pop(tc.text);
+                    }
+                  },
+                ),
+              ],
+            );
+          }
+        );
+
+        if (tag == null || tag.isEmpty) {
+          return;
+        }
+
         setState(() {
-          _tags.add('d.va');
+          _tags.add(tag);
           changed = true;
         });
       },
@@ -192,14 +241,22 @@ class _MainPageState extends State<MainPage>
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          return DetailPage(image.fileUrl);
+          return DetailPage(image.fileUrl, image.tags);
         }));
       },
-      child: ExtendedImage.network(
-        image.thumbnailUrl,
-        width: MediaQuery.of(context).size.width / 2,
-        height: MediaQuery.of(context).size.width / 2,
-        fit: BoxFit.cover,
+      child: Stack(
+        children: [
+          ExtendedImage.network(
+            image.thumbnailUrl,
+            width: MediaQuery.of(context).size.width / 2,
+            fit: BoxFit.cover,
+          ),
+          if (image.fileUrl.endsWith('webm'))
+            Align(
+              alignment: Alignment.center,
+              child: Icon(Icons.play_arrow, color: Colors.white70, size: 90)
+            )
+        ],
       ),
     );
   }
@@ -208,8 +265,9 @@ class _MainPageState extends State<MainPage>
 class R34Image {
   final String fileUrl;
   final String thumbnailUrl;
+  final String tags;
 
-  R34Image(this.fileUrl, this.thumbnailUrl);
+  R34Image(this.fileUrl, this.thumbnailUrl, this.tags);
 }
 
 class R34ImageRepository extends LoadingMoreBase<R34Image> {
@@ -262,7 +320,8 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
         if (thumbnailUrl.endsWith("webm")) {
           thumbnailUrl = post.getAttribute('preview_url');
         }
-        this.add(R34Image(fileUrl, thumbnailUrl));
+        final tags = post.getAttribute('tags');
+        this.add(R34Image(fileUrl, thumbnailUrl, tags));
       }
 
       _hasMore = posts.length != 0;
