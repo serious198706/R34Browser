@@ -45,7 +45,7 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   void dispose() {
-    if(_controller != null) _controller.dispose();
+    if (_controller != null) _controller.dispose();
     super.dispose();
   }
 
@@ -90,11 +90,10 @@ class _DetailPageState extends State<DetailPage> {
 
                       print('saving to $path');
                       await FlutterDownloader.enqueue(
-                        url: widget.url,
-                        savedDir: path,
-                        showNotification: false,
-                        openFileFromNotification: false
-                      );
+                          url: widget.url,
+                          savedDir: path,
+                          showNotification: false,
+                          openFileFromNotification: false);
                     },
                   ),
                 ],
@@ -108,7 +107,12 @@ class _DetailPageState extends State<DetailPage> {
                   padding: EdgeInsets.all(16),
                   width: MediaQuery.of(context).size.width - 32,
                   color: Colors.black45,
-                  child: Expanded(child: Text('TAGS: ' + widget.tags, style: TextStyle(color: Colors.white), maxLines: 100,)),
+                  child: Expanded(
+                      child: Text(
+                    'TAGS: ' + widget.tags,
+                    style: TextStyle(color: Colors.white),
+                    maxLines: 100,
+                  )),
                 ))
         ],
       ),

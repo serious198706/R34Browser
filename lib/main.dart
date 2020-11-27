@@ -9,7 +9,6 @@ import 'package:r34_browser/themes.dart';
 import 'package:xml/xml.dart';
 
 import 'themes.dart';
-import 'themes.dart';
 
 void main() {
   runApp(MyApp());
@@ -94,13 +93,8 @@ class _MainPageState extends State<MainPage>
   void init() async {
     WidgetsFlutterBinding.ensureInitialized();
     await FlutterDownloader.initialize();
-    FlutterDownloader.registerCallback((id, status, progress) {
-      if (status == DownloadTaskStatus.complete) {
-        Fluttertoast.showToast(msg: 'Download complete');
-      }
-    });
+    FlutterDownloader.registerCallback(downloadCallback);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +146,8 @@ class _MainPageState extends State<MainPage>
                 itemBuilder: _buildImage,
                 sourceList: _repository,
                 padding: EdgeInsets.all(8.0),
-                extendedListDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                extendedListDelegate:
+                    SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
@@ -194,34 +189,33 @@ class _MainPageState extends State<MainPage>
       onDeleted: () async {
         TextEditingController tc = TextEditingController();
         var tag = await showDialog<String>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: Text('Input Tag'),
-              content: TextField(
-                controller: tc,
-              ),
-              actions: [
-                FlatButton(
-                  child: Text('CANCEL', style: TextStyle(color: Colors.grey)),
-                  onPressed: () {
-                    Navigator.of(context).pop('');
-                  },
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text('Input Tag'),
+                content: TextField(
+                  controller: tc,
                 ),
-                FlatButton(
-                  child: Text('ADD', style: TextStyle(color: textColor)),
-                  onPressed: () {
-                    if (tc.text == null || tc.text.isEmpty) {
-                      return;
-                    } else {
-                      Navigator.of(context).pop(tc.text);
-                    }
-                  },
-                ),
-              ],
-            );
-          }
-        );
+                actions: [
+                  FlatButton(
+                    child: Text('CANCEL', style: TextStyle(color: Colors.grey)),
+                    onPressed: () {
+                      Navigator.of(context).pop('');
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('ADD', style: TextStyle(color: textColor)),
+                    onPressed: () {
+                      if (tc.text == null || tc.text.isEmpty) {
+                        return;
+                      } else {
+                        Navigator.of(context).pop(tc.text);
+                      }
+                    },
+                  ),
+                ],
+              );
+            });
 
         if (tag == null || tag.isEmpty) {
           return;
@@ -253,9 +247,8 @@ class _MainPageState extends State<MainPage>
           ),
           if (image.fileUrl.endsWith('webm'))
             Align(
-              alignment: Alignment.center,
-              child: Icon(Icons.play_arrow, color: Colors.white70, size: 90)
-            )
+                alignment: Alignment.center,
+                child: Icon(Icons.play_arrow, color: Colors.white70, size: 90))
         ],
       ),
     );
@@ -333,5 +326,11 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       print(stack);
     }
     return isSuccess;
+  }
+}
+
+void downloadCallback(String id, DownloadTaskStatus status, int progress) {
+  if (status == DownloadTaskStatus.complete) {
+    Fluttertoast.showToast(msg: 'Download complete');
   }
 }
