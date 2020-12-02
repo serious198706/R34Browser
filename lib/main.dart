@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'r34 Browser',
+      title: 'Rule34',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -67,7 +67,7 @@ class _MainPageState extends State<MainPage>
     super.initState();
     controller = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
-    animation = Tween(begin: 0.0, end: 300.0).animate(
+    animation = Tween(begin: 0.0, end: 100.0).animate(
       new CurvedAnimation(
         parent: controller,
         curve: new Interval(
@@ -82,7 +82,7 @@ class _MainPageState extends State<MainPage>
         });
       });
 
-    _tags.add('fireboxstudio');
+    // _tags.add('fireboxstudio');
 
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
@@ -102,10 +102,7 @@ class _MainPageState extends State<MainPage>
       backgroundColor: primaryColor,
       appBar: AppBar(
         backgroundColor: primaryColor,
-        title: Text(
-          'r34 Browser',
-          style: TextStyle(color: textColor),
-        ),
+        title: Text('Rule34', style: TextStyle(color: textColor)),
         actions: [
           AnimatedSwitcher(
             duration: Duration(milliseconds: 300),
@@ -113,7 +110,7 @@ class _MainPageState extends State<MainPage>
               return FadeTransition(child: _, opacity: __);
             },
             child: IconButton(
-                icon: Icon(_appbarIcon),
+                icon: Icon(_appbarIcon, color: textColor),
                 key: ValueKey<IconData>(_appbarIcon),
                 onPressed: () {
                   if (!isTaped) {
@@ -143,14 +140,16 @@ class _MainPageState extends State<MainPage>
             height: MediaQuery.of(context).size.height,
             child: LoadingMoreList(
               ListConfig<R34Image>(
+                indicatorBuilder: (_, __) {
+                  return Center(child:SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 1,)));
+                },
                 itemBuilder: _buildImage,
                 sourceList: _repository,
-                padding: EdgeInsets.all(8.0),
                 extendedListDelegate:
                     SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 4,
+                  mainAxisSpacing: 4,
                 ),
               ),
             ),
@@ -233,17 +232,36 @@ class _MainPageState extends State<MainPage>
 
   Widget _buildImage(BuildContext context, R34Image image, int index) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      onTap: () async {
+        var result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           return DetailPage(image.fileUrl, image.tags);
         }));
+
+        if (result != null) {
+          setState(() {
+            _tags.clear();
+            _tags.add(result);
+            changed = true;
+
+            _repository.setTags(_tags);
+            _repository.refresh(true);
+          });
+        }
       },
       child: Stack(
         children: [
           ExtendedImage.network(
-            image.thumbnailUrl,
+            image.sampleUrl,
             width: MediaQuery.of(context).size.width / 2,
             fit: BoxFit.cover,
+            enableLoadState: true,
+            loadStateChanged: (state) {
+              if (state.extendedImageLoadState == LoadState.loading) {
+                return Image.network(image.thumbnailUrl);
+              } else {
+                return null;
+              }
+            },
           ),
           if (image.fileUrl.endsWith('webm'))
             Align(
@@ -258,9 +276,10 @@ class _MainPageState extends State<MainPage>
 class R34Image {
   final String fileUrl;
   final String thumbnailUrl;
+  final String sampleUrl;
   final String tags;
 
-  R34Image(this.fileUrl, this.thumbnailUrl, this.tags);
+  R34Image(this.fileUrl, this.thumbnailUrl, this.sampleUrl, this.tags);
 }
 
 class R34ImageRepository extends LoadingMoreBase<R34Image> {
@@ -309,12 +328,13 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
 
       for (var post in posts) {
         final fileUrl = post.getAttribute('file_url');
-        var thumbnailUrl = post.getAttribute('sample_url');
-        if (thumbnailUrl.endsWith("webm")) {
-          thumbnailUrl = post.getAttribute('preview_url');
+        var thumbnailUrl = post.getAttribute('preview_url');
+        var sampleUrl = post.getAttribute('sample_url');
+        if (sampleUrl.endsWith("webm")) {
+          sampleUrl = post.getAttribute('preview_url');
         }
         final tags = post.getAttribute('tags');
-        this.add(R34Image(fileUrl, thumbnailUrl, tags));
+        this.add(R34Image(fileUrl, thumbnailUrl, sampleUrl, tags));
       }
 
       _hasMore = posts.length != 0;
@@ -322,8 +342,6 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       isSuccess = true;
     } catch (exception, stack) {
       isSuccess = false;
-      print(exception);
-      print(stack);
     }
     return isSuccess;
   }

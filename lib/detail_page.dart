@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -21,7 +22,7 @@ class _DetailPageState extends State<DetailPage> {
   VideoPlayerController _controller;
   bool _buttonsShowing = false;
   bool _isFullscreen = false;
-  bool _isShowingTags = false;
+  List<String> _tags = List();
 
   @override
   void initState() {
@@ -41,6 +42,9 @@ class _DetailPageState extends State<DetailPage> {
       _controller.setLooping(true);
       _controller.play();
     }
+
+    _tags = widget.tags.split(' ');
+    _tags.removeWhere((element) => element.isEmpty);
   }
 
   @override
@@ -76,14 +80,6 @@ class _DetailPageState extends State<DetailPage> {
                 elevation: 0,
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.info_outline),
-                    onPressed: () {
-                      setState(() {
-                        _isShowingTags = !_isShowingTags;
-                      });
-                    },
-                  ),
-                  IconButton(
                     icon: Icon(Icons.download_outlined),
                     onPressed: () async {
                       var path = await _findLocalPath();
@@ -98,25 +94,32 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ],
               )),
-          if (_isShowingTags)
-            Positioned(
-                top: 100,
-                left: 0,
-                child: Container(
-                  margin: EdgeInsets.all(16),
-                  padding: EdgeInsets.all(16),
-                  width: MediaQuery.of(context).size.width - 32,
-                  color: Colors.black45,
-                  child: Expanded(
-                      child: Text(
-                    'TAGS: ' + widget.tags,
-                    style: TextStyle(color: Colors.white),
-                    maxLines: 100,
-                  )),
-                ))
+          Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
+                width: MediaQuery.of(context).size.width - 32,
+                color: Colors.black45,
+                child: Expanded(
+                    child: Text.rich(
+                  TextSpan(
+                      text: '',
+                      style: TextStyle(color: Colors.white),
+                      children: _tags.map(_buildTag).toList()),
+                )),
+              ))
         ],
       ),
     );
+  }
+
+  TextSpan _buildTag(String tag) {
+    return TextSpan(text: '#$tag ', recognizer: TapGestureRecognizer()..onTap = () {
+      Navigator.of(context).pop(tag);
+    });
   }
 
   Widget _buildVideoPlayer() {

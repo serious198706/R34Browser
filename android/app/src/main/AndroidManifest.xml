@@ -12,7 +12,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="r34_browser"
+        android:label="Rule34"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
