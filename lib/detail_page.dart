@@ -18,11 +18,14 @@ class DetailPage extends StatefulWidget {
   _DetailPageState createState() => _DetailPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   VideoPlayerController _controller;
   bool _buttonsShowing = false;
   bool _isFullscreen = false;
+  bool _showTags = true;
   List<String> _tags = List();
+
+  double _bottomPosition = 0;
 
   @override
   void initState() {
@@ -94,8 +97,10 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ],
               )),
-          Positioned(
-              bottom: 0,
+          if (!widget.url.endsWith('webm'))
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 250),
+              bottom: _bottomPosition,
               left: 0,
               right: 0,
               child: Container(
@@ -261,14 +266,21 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Widget _buildImageViewer() {
-    return ExtendedImage.network(
-      widget.url,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      fit: BoxFit.fitWidth,
-      cache: true,
-      mode: ExtendedImageMode.gesture,
-      enableSlideOutPage: true,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _bottomPosition = (_bottomPosition == 0 ? -300 : 0);
+        });
+      },
+      child: ExtendedImage.network(
+        widget.url,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        fit: BoxFit.fitWidth,
+        cache: true,
+        mode: ExtendedImageMode.gesture,
+        enableSlideOutPage: true,
+      ),
     );
   }
 
