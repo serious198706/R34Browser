@@ -53,6 +53,10 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     if (_controller != null) _controller.dispose();
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+
     super.dispose();
   }
 
@@ -98,33 +102,36 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                 ],
               )),
           if (!widget.url.endsWith('webm'))
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 250),
-              bottom: _bottomPosition,
-              left: 0,
-              right: 0,
-              child: Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(16),
-                width: MediaQuery.of(context).size.width - 32,
-                color: Colors.black45,
-                child: Expanded(
-                    child: Text.rich(
-                  TextSpan(
-                      text: '',
-                      style: TextStyle(color: Colors.white),
-                      children: _tags.map(_buildTag).toList()),
-                )),
-              ))
+            AnimatedPositioned(
+                duration: Duration(milliseconds: 250),
+                bottom: _bottomPosition,
+                left: 0,
+                right: 0,
+                child: Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  width: MediaQuery.of(context).size.width - 32,
+                  color: Colors.black45,
+                  child: Expanded(
+                      child: Text.rich(
+                    TextSpan(
+                        text: '',
+                        style: TextStyle(color: Colors.white),
+                        children: _tags.map(_buildTag).toList()),
+                  )),
+                ))
         ],
       ),
     );
   }
 
   TextSpan _buildTag(String tag) {
-    return TextSpan(text: '#$tag ', recognizer: TapGestureRecognizer()..onTap = () {
-      Navigator.of(context).pop(tag);
-    });
+    return TextSpan(
+        text: '#$tag ',
+        recognizer: TapGestureRecognizer()
+          ..onTap = () {
+            Navigator.of(context).pop(tag);
+          });
   }
 
   Widget _buildVideoPlayer() {
