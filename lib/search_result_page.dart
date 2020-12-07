@@ -48,14 +48,13 @@ class _SearchResultPageState extends State<SearchResultPage>
         ),
       ),
     )..addListener(() {
-      setState(() {
-        // the state that has changed here is the animation object’s value
+        setState(() {
+          // the state that has changed here is the animation object’s value
+        });
       });
-    });
 
-    // _tags.add('fireboxstudio');
-
-    _tags = widget.tags;
+    _tags = List();
+    _tags.addAll(widget.tags);
     _title = _tags.join(' ');
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
@@ -74,10 +73,9 @@ class _SearchResultPageState extends State<SearchResultPage>
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
-        backgroundColor: primaryColor,
-        title: Text(_title, style: TextStyle(color: textColor)),
-        iconTheme: IconThemeData(color: textColor)
-      ),
+          backgroundColor: primaryColor,
+          title: Text(_title, style: TextStyle(color: textColor)),
+          iconTheme: IconThemeData(color: textColor)),
       body: Stack(
         children: [
           SizedBox(
@@ -86,12 +84,18 @@ class _SearchResultPageState extends State<SearchResultPage>
             child: LoadingMoreList(
               ListConfig<R34Image>(
                 indicatorBuilder: (_, __) {
-                  return Center(child:SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 1,)));
+                  return Center(
+                      child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1,
+                          )));
                 },
                 itemBuilder: _buildImage,
                 sourceList: _repository,
                 extendedListDelegate:
-                SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                    SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 4,
                   mainAxisSpacing: 4,
@@ -115,16 +119,16 @@ class _SearchResultPageState extends State<SearchResultPage>
     List<Widget> chips = _tags
         .map(
           (tag) => Chip(
-        label: Text(tag),
-        deleteIcon: Icon(Icons.remove, size: 12),
-        onDeleted: () {
-          setState(() {
-            _tags.remove(tag);
-            changed = true;
-          });
-        },
-      ),
-    )
+            label: Text(tag),
+            deleteIcon: Icon(Icons.remove, size: 12),
+            onDeleted: () {
+              setState(() {
+                _tags.remove(tag);
+                changed = true;
+              });
+            },
+          ),
+        )
         .toList();
 
     chips.add(Chip(
@@ -178,8 +182,14 @@ class _SearchResultPageState extends State<SearchResultPage>
   Widget _buildImage(BuildContext context, R34Image image, int index) {
     return GestureDetector(
       onTap: () async {
-        var result = await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          return DetailPage(image.fileUrl, image.tags);
+        var result =
+            await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+          var type = 0;
+          if (image.fileUrl.endsWith('webm')) {
+            type = 1;
+          }
+          return DetailPage(
+              type, image.thumbnailUrl, image.fileUrl, image.tags);
         }));
 
         if (result != null) {
@@ -218,7 +228,6 @@ class _SearchResultPageState extends State<SearchResultPage>
   }
 }
 
-
 class R34ImageRepository extends LoadingMoreBase<R34Image> {
   int pageindex = 1;
   bool _hasMore = true;
@@ -249,10 +258,10 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
     String url = "";
     if (this.length == 0) {
       url =
-      "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index";
+          "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index";
     } else {
       url =
-      "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index&pid=${pageindex}";
+          "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index&pid=${pageindex}";
     }
     bool isSuccess = false;
 
@@ -283,7 +292,6 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
     return isSuccess;
   }
 }
-
 
 void downloadCallback(String id, DownloadTaskStatus status, int progress) {
   if (status == DownloadTaskStatus.complete) {
