@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:r34_browser/gallery_page.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import 'themes.dart';
 
@@ -164,13 +167,45 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildVideoPreview() {
+  Future<Widget> _buildVideoPreview() async {
+    final uint8list = await VideoThumbnail.thumbnailFile(
+      video: widget.url,
+      thumbnailPath: (await getTemporaryDirectory()).path,
+      imageFormat: ImageFormat.WEBP,
+      maxHeight: 64,
+      // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
+      quality: 75,
+    );
+
     return Stack(
       children: [
-        _buildImageViewer(),
+        GestureDetector(
+          onTap: _goToGallery,
+          child: ExtendedImage.file(
+            File(uint8list),
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.fitWidth,
+            mode: ExtendedImageMode.gesture,
+            enableSlideOutPage: true,
+            enableLoadState: true,
+            loadStateChanged: (state) {
+              if (state.extendedImageLoadState == LoadState.loading) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(widget.thumbnailUrl),
+                    CircularProgressIndicator()
+                  ],
+                );
+              } else {
+                return null;
+              }
+            },
+          ),
+        ),
         Positioned(
-          right: 16,
-          bottom: 16,
+          right: 36,
+          bottom: 36,
           child: IconButton(
               icon: Icon(
                 Icons.play_arrow,

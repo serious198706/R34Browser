@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:r34_browser/hot_tags_page.dart';
 import 'package:r34_browser/my_page.dart';
@@ -55,6 +56,8 @@ class _MainPageState extends State<MainPage> {
     _myPage = MyPage();
 
     _pageController = PageController(initialPage: 0, keepPage: true);
+
+    FlutterDownloader.initialize();
   }
 
   @override

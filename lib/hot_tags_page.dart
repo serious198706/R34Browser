@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HotTagsPage extends StatefulWidget {
   @override
@@ -9,7 +10,7 @@ class HotTagsPage extends StatefulWidget {
 
 class _HotTagsPageState extends State<HotTagsPage>
     with AutomaticKeepAliveClientMixin {
-  List<String> _hotTags = [
+  List<String> _initialhotTags = [
     'auxtasy',
     'yeero',
     'fireboxstudio',
@@ -22,11 +23,22 @@ class _HotTagsPageState extends State<HotTagsPage>
     'arti202',
     'tabesc3d',
     'volkor',
-    'bewyx'
+    'bewyx',
+    'hydrafxx',
+    'tiaz-3dx'
   ];
+
+  List<String> _hotTags = List();
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _hotTags.addAll(_initialhotTags);
+    _readSaved();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +53,20 @@ class _HotTagsPageState extends State<HotTagsPage>
           runSpacing: 8.0,
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.refresh),
+        onPressed: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          List<String> fav_tags = prefs.getStringList('tags');
+
+          setState(() {
+            _hotTags.clear();
+            _hotTags.addAll(_initialhotTags);
+            if (fav_tags != null)
+              _hotTags.addAll(fav_tags);
+          });
+        }
+      ),
     );
   }
 
@@ -53,9 +79,28 @@ class _HotTagsPageState extends State<HotTagsPage>
         .toList();
   }
 
-  void search(String tag) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return SearchResultPage([tag]);
+  void _readSaved() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> fav_tags = prefs.getStringList('tags');
+    setState(() {
+      if (fav_tags != null)
+      _hotTags.addAll(fav_tags);
+    });
+  }
+
+  void search(String tag) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+      return SearchResultPage([tag], true);
     }));
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> fav_tags = prefs.getStringList('tags');
+
+    setState(() {
+      _hotTags.clear();
+      _hotTags.addAll(_initialhotTags);
+      if (fav_tags != null)
+      _hotTags.addAll(fav_tags);
+    });
   }
 }

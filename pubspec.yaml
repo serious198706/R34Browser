@@ -35,6 +35,8 @@ dependencies:
   video_player: 1.0.1
   flutter_downloader: 1.5.2
   fluttertoast: 7.1.5
+  shared_preferences: 0.5.12+4
+  video_thumbnail: 0.2.5
 
 dev_dependencies:
   flutter_test:

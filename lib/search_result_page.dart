@@ -7,12 +7,14 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:r34_browser/detail_page.dart';
 import 'package:r34_browser/r34image.dart';
 import 'package:r34_browser/themes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart';
 
 class SearchResultPage extends StatefulWidget {
   final List<String> tags;
+  final bool fav;
 
-  const SearchResultPage(this.tags);
+  const SearchResultPage(this.tags, this.fav);
 
   @override
   _SearchResultPageState createState() => _SearchResultPageState();
@@ -30,12 +32,14 @@ class _SearchResultPageState extends State<SearchResultPage>
 
   List<String> _tags;
   String _title = '';
+  bool fav = false;
 
   IconData _appbarIcon = Icons.search;
 
   @override
   void initState() {
     super.initState();
+    fav = widget.fav;
     controller = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     animation = Tween(begin: 0.0, end: 100.0).animate(
@@ -64,7 +68,6 @@ class _SearchResultPageState extends State<SearchResultPage>
 
   void init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await FlutterDownloader.initialize();
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
@@ -75,7 +78,15 @@ class _SearchResultPageState extends State<SearchResultPage>
       appBar: AppBar(
           backgroundColor: primaryColor,
           title: Text(_title, style: TextStyle(color: textColor)),
-          iconTheme: IconThemeData(color: textColor)),
+          iconTheme: IconThemeData(color: textColor),
+      actions: [
+        IconButton(icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border), onPressed: () {
+          setState(() {
+            fav = !fav;
+            _save();
+          });
+        })
+      ],),
       body: Stack(
         children: [
           SizedBox(
@@ -225,6 +236,28 @@ class _SearchResultPageState extends State<SearchResultPage>
         ],
       ),
     );
+  }
+
+  void _save() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> saved = prefs.getStringList('tags');
+    if (saved == null) {
+      saved = List();
+    }
+
+    if (fav) {
+      for (var tag in _tags) {
+        if (!saved.contains(tag)) {
+          saved.add(tag);
+        }
+      }
+    } else {
+      for (var tag in _tags) {
+        saved.remove(tag);
+      }
+    }
+
+    await prefs.setStringList('tags', saved);
   }
 }
 
