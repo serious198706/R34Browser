@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:r34_browser/detail_page.dart';
 import 'package:r34_browser/r34image.dart';
@@ -62,13 +60,6 @@ class _SearchResultPageState extends State<SearchResultPage>
     _title = _tags.join(' ');
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
-
-    init();
-  }
-
-  void init() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    FlutterDownloader.registerCallback(downloadCallback);
   }
 
   @override
@@ -76,17 +67,20 @@ class _SearchResultPageState extends State<SearchResultPage>
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
-          backgroundColor: primaryColor,
-          title: Text(_title, style: TextStyle(color: textColor)),
-          iconTheme: IconThemeData(color: textColor),
-      actions: [
-        IconButton(icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border), onPressed: () {
-          setState(() {
-            fav = !fav;
-            _save();
-          });
-        })
-      ],),
+        backgroundColor: primaryColor,
+        title: Text(_title, style: TextStyle(color: textColor)),
+        iconTheme: IconThemeData(color: textColor),
+        actions: [
+          IconButton(
+              icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+              onPressed: () {
+                setState(() {
+                  fav = !fav;
+                  _save();
+                });
+              })
+        ],
+      ),
       body: Stack(
         children: [
           SizedBox(
@@ -323,11 +317,5 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       isSuccess = false;
     }
     return isSuccess;
-  }
-}
-
-void downloadCallback(String id, DownloadTaskStatus status, int progress) {
-  if (status == DownloadTaskStatus.complete) {
-    Fluttertoast.showToast(msg: 'Download complete');
   }
 }

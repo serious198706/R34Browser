@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:r34_browser/gallery_page.dart';
+import 'package:r34_browser/platform_channel.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 import 'themes.dart';
@@ -28,11 +28,32 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
 
   double _bottomPosition = 0;
 
+  String _uint8list = null;
+
   @override
   void initState() {
     super.initState();
     _tags = widget.tags.split(' ');
     _tags.removeWhere((element) => element.isEmpty);
+
+    if (widget.type == 1) {
+      getThumbnailData();
+    }
+  }
+
+  void getThumbnailData() async {
+    String file = await VideoThumbnail.thumbnailFile(
+      video: widget.url,
+      thumbnailPath: (await getTemporaryDirectory()).path,
+      imageFormat: ImageFormat.WEBP,
+      maxHeight: 300,
+      // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
+      quality: 100,
+    );
+
+    setState(() {
+      _uint8list = file;
+    });
   }
 
   @override
@@ -82,15 +103,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           Expanded(
             child: FlatButton(
               onPressed: () async {
-                var path = await _findLocalPath();
-
-                print('saving to $path');
-                await FlutterDownloader.enqueue(
-                    url: widget.url,
-                    savedDir: path,
-                    showNotification: false,
-                    openFileFromNotification: false);
-
+                DownloadFile.downloadFile(widget.url);
                 Fluttertoast.showToast(msg: 'Added to download');
               },
               child: Text('DOWNLOAD'),
@@ -167,22 +180,20 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     );
   }
 
-  Future<Widget> _buildVideoPreview() async {
-    final uint8list = await VideoThumbnail.thumbnailFile(
-      video: widget.url,
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.WEBP,
-      maxHeight: 64,
-      // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
-      quality: 75,
-    );
+  Widget _buildVideoPreview() {
+    if (_uint8list == null) {
+      return Container(
+          color: Colors.black,
+          height: 300,
+          child: Center(child: CircularProgressIndicator()));
+    }
 
     return Stack(
       children: [
         GestureDetector(
           onTap: _goToGallery,
           child: ExtendedImage.file(
-            File(uint8list),
+            File(_uint8list),
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fitWidth,
             mode: ExtendedImageMode.gesture,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:r34_browser/models.dart';
+import 'package:r34_browser/platform_channel.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
 import 'package:r34_browser/textfield_tags.dart';
@@ -18,13 +19,7 @@ class _SearchPageState extends State<SearchPage>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-
     super.build(context);
     return Scaffold(
         appBar: AppBar(
@@ -44,53 +39,52 @@ class _SearchPageState extends State<SearchPage>
             ),
             SizedBox(height: 24),
             Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                color: Colors.white
-              ),
-              margin: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFieldTags(
-                      tagsStyler: TagsStyler(
-                        tagDecoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                        ),
-                        tagTextStyle: TextStyle(
-                          color: Colors.white
-                        ),
-                        tagCancelIcon: Icon(Icons.clear, color: Colors.white, size: 14,),
-                        tagCancelIconPadding: EdgeInsets.all(4)
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    color: Colors.white),
+                margin: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFieldTags(
+                        tagsStyler: TagsStyler(
+                            tagDecoration: BoxDecoration(
+                              color: primaryColor,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(4.0)),
+                            ),
+                            tagTextStyle: TextStyle(color: Colors.white),
+                            tagCancelIcon: Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                            tagCancelIconPadding: EdgeInsets.all(4)),
+                        textFieldStyler: TextFieldStyler(
+                            hintText: '',
+                            helperText: '',
+                            textFieldFilled: true,
+                            helperStyle: TextStyle(fontSize: 0),
+                            textFieldBorder: InputBorder.none,
+                            textFieldFocusedBorder: InputBorder.none,
+                            textFieldEnabledBorder: InputBorder.none,
+                            textFieldDisabledBorder: InputBorder.none,
+                            isDense: false),
+                        onTag: (tag) {
+                          _tags.add(tag);
+                        },
+                        onDelete: (tag) {
+                          _tags.remove(tag);
+                        },
                       ),
-                      textFieldStyler: TextFieldStyler(
-                        hintText: '',
-                        helperText: '',
-                          textFieldFilled: true,
-                        helperStyle: TextStyle(fontSize: 0),
-                        textFieldBorder: InputBorder.none,
-                        textFieldFocusedBorder: InputBorder.none,
-                        textFieldEnabledBorder: InputBorder.none,
-                        textFieldDisabledBorder: InputBorder.none,
-                        isDense: false
-                      ),
-                      onTag: (tag) {
-                        _tags.add(tag);
-                      },
-                      onDelete: (tag) {
-                        _tags.remove(tag);
-                      },
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    color: textColor,
-                    onPressed: search,
-                  )
-                ],
-              )
-            )
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      color: textColor,
+                      onPressed: search,
+                    )
+                  ],
+                )),
           ],
         )));
   }
