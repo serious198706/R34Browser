@@ -198,12 +198,16 @@ class _SearchResultPageState extends State<SearchResultPage>
 
     if (fav) {
       for (var tag in _tags) {
+        if (tag.contains('-')) continue;
+
         if (!saved.contains(tag)) {
           saved.add(tag);
         }
       }
     } else {
       for (var tag in _tags) {
+        if (tag.contains('-')) continue;
+
         saved.remove(tag);
       }
     }
@@ -218,7 +222,18 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
   bool forceRefresh = false;
   String tags = '';
 
+  List<String> negativeTags = [
+    '-mammal',
+    '-fur',
+    '-gay',
+    '-horn',
+    '-balls',
+    '-feathers',
+    '-feather'
+  ];
+
   void setTags(List<String> tags) {
+    tags.addAll(negativeTags);
     this.tags = tags.join('+');
   }
 
@@ -247,6 +262,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       url =
           "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index&pid=${pageindex}";
     }
+
     bool isSuccess = false;
 
     try {
@@ -270,7 +286,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       _hasMore = posts.length != 0;
       pageindex++;
       isSuccess = true;
-    } catch (exception, stack) {
+    } catch (exception, _) {
       isSuccess = false;
     }
     return isSuccess;
