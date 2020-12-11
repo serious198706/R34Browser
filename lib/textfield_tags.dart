@@ -7,23 +7,25 @@ class TextFieldTags extends StatefulWidget {
   final TextFieldStyler textFieldStyler;
   final void Function(String tag) onTag;
   final void Function(String tag) onDelete;
+  final TextEditingController controller;
 
   const TextFieldTags({
     Key key,
     @required this.tagsStyler,
     @required this.textFieldStyler,
+    this.controller,
     this.onTag,
     this.onDelete,
   })  : assert(tagsStyler != null || textFieldStyler != null),
         super(key: key);
 
   @override
-  _TextFieldTagsState createState() => _TextFieldTagsState();
+  TextFieldTagsState createState() => TextFieldTagsState();
 }
 
-class _TextFieldTagsState extends State<TextFieldTags> {
+class TextFieldTagsState extends State<TextFieldTags> {
   List<String> _tagsStringContent = [];
-  TextEditingController _textEditingController = TextEditingController();
+  TextEditingController _textEditingController;
   ScrollController _scrollController = ScrollController();
   TagsStyler _tagsStyler;
   TextFieldStyler _textFieldStyler;
@@ -37,6 +39,8 @@ class _TextFieldTagsState extends State<TextFieldTags> {
         ? TextFieldStyler()
         : widget.textFieldStyler;
     _showPrefixIcon = false;
+
+    _textEditingController = widget.controller ?? TextEditingController();
   }
 
   @override
@@ -68,7 +72,8 @@ class _TextFieldTagsState extends State<TextFieldTags> {
               padding: _tagsStyler.tagCancelIconPadding,
               child: GestureDetector(
                 onTap: () {
-                  if (_tagsStringContent.length == 1 && _showPrefixIcon == true) {
+                  if (_tagsStringContent.length == 1 &&
+                      _showPrefixIcon == true) {
                     widget.onDelete(_tagsStringContent[i]);
                     setState(() {
                       _tagsStringContent.remove(_tagsStringContent[i]);
@@ -101,6 +106,10 @@ class _TextFieldTagsState extends State<TextFieldTags> {
     );
   }
 
+  void addTag(String tag) {
+    onSubmitted(tag);
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -120,48 +129,28 @@ class _TextFieldTagsState extends State<TextFieldTags> {
         enabledBorder: _textFieldStyler.textFieldEnabledBorder,
         prefixIcon: _showPrefixIcon == true
             ? ConstrainedBox(
-          constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.725),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: _getTags(),
-              ),
-            ),
-          ),
-        )
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.725),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _getTags(),
+                    ),
+                  ),
+                ),
+              )
             : null,
       ),
-      onSubmitted: (value) {
-        var val = value.trim().toLowerCase();
-        if (value.length > 0) {
-          _textEditingController.clear();
-          if (!_tagsStringContent.contains(val)) {
-            if (_showPrefixIcon == false) {
-              widget.onTag(val);
-              setState(() {
-                _tagsStringContent.add(val);
-                _showPrefixIcon = true;
-              });
-            } else {
-              widget.onTag(val);
-              setState(() {
-                _tagsStringContent.add(val);
-              });
-            }
-            this._animateTransition();
-          }
-        }
-      },
+      onSubmitted: onSubmitted,
       onChanged: (value) {
         var splitedTagsList = value.split(" ");
         var lastLastTag =
-        splitedTagsList[splitedTagsList.length - 2].trim().toLowerCase();
+            splitedTagsList[splitedTagsList.length - 2].trim().toLowerCase();
 
         if (value.contains(" ")) {
           if (lastLastTag.length > 0) {
@@ -186,5 +175,27 @@ class _TextFieldTagsState extends State<TextFieldTags> {
         }
       },
     );
+  }
+
+  void onSubmitted(String value) {
+    var val = value.trim().toLowerCase();
+    if (value.length > 0) {
+      _textEditingController.clear();
+      if (!_tagsStringContent.contains(val)) {
+        if (_showPrefixIcon == false) {
+          widget.onTag(val);
+          setState(() {
+            _tagsStringContent.add(val);
+            _showPrefixIcon = true;
+          });
+        } else {
+          widget.onTag(val);
+          setState(() {
+            _tagsStringContent.add(val);
+          });
+        }
+        this._animateTransition();
+      }
+    }
   }
 }

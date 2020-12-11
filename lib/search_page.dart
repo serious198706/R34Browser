@@ -1,6 +1,8 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:r34_browser/models.dart';
-import 'package:r34_browser/platform_channel.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
 import 'package:r34_browser/textfield_tags.dart';
@@ -14,9 +16,28 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage>
     with AutomaticKeepAliveClientMixin {
   List<String> _tags = List();
+  TextEditingController _controller;
+  List<Suggest> _suggest = List();
+  GlobalKey<TextFieldTagsState> _key = GlobalKey<TextFieldTagsState>();
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = TextEditingController()
+      ..addListener(() {
+        if (_controller.text != null && _controller.text.isNotEmpty) {
+          _requestAutoComplete(_controller.text);
+        } else {
+          setState(() {
+            _suggest.clear();
+          });
+        }
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +68,8 @@ class _SearchPageState extends State<SearchPage>
                   children: [
                     Expanded(
                       child: TextFieldTags(
+                        key: _key,
+                        controller: _controller,
                         tagsStyler: TagsStyler(
                             tagDecoration: BoxDecoration(
                               color: primaryColor,
@@ -85,8 +108,45 @@ class _SearchPageState extends State<SearchPage>
                     )
                   ],
                 )),
+            if (_suggest.isNotEmpty)
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    color: Colors.white),
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ListView.builder(
+                  itemCount: _suggest.length,
+                  itemBuilder: (_, index) {
+                    var item = _suggest[index];
+                    return GestureDetector(
+                      onTap: () {
+                        _key.currentState.addTag(item.value);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(item.label),
+                      ),
+                    );
+                  },
+                ),
+              )
           ],
         )));
+  }
+
+  void _requestAutoComplete(String key) async {
+    String url = 'https://rule34.xxx/autocomplete.php?q=';
+    Dio dio = Dio();
+    Response<String> response = await dio.request(url + key);
+
+    List<dynamic> suggest = jsonDecode(response.data);
+
+    setState(() {
+      _suggest = suggest
+          .map((e) => Suggest(e['label'] as String, e['value'] as String))
+          .toList();
+    });
   }
 
   void search() async {
@@ -108,4 +168,11 @@ class _SearchPageState extends State<SearchPage>
       return SearchResultPage(_tags, fav);
     }));
   }
+}
+
+class Suggest {
+  final String label;
+  final String value;
+
+  const Suggest(this.label, this.value);
 }
