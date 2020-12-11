@@ -25,7 +25,8 @@ class _HotTagsPageState extends State<HotTagsPage>
     'volkor',
     'bewyx',
     'hydrafxx',
-    'tiaz-3dx'
+    'tiaz-3dx',
+    'bulginsenpai'
   ];
 
   List<String> _hotTags = List();
@@ -54,19 +55,17 @@ class _HotTagsPageState extends State<HotTagsPage>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: () async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          List<String> fav_tags = prefs.getStringList('tags');
+          child: Icon(Icons.refresh),
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            List<String> fav_tags = prefs.getStringList('tags');
 
-          setState(() {
-            _hotTags.clear();
-            _hotTags.addAll(_initialhotTags);
-            if (fav_tags != null)
-              _hotTags.addAll(fav_tags);
-          });
-        }
-      ),
+            setState(() {
+              _hotTags.clear();
+              _hotTags.addAll(_initialhotTags);
+              if (fav_tags != null) _hotTags.addAll(fav_tags);
+            });
+          }),
     );
   }
 
@@ -83,8 +82,7 @@ class _HotTagsPageState extends State<HotTagsPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> fav_tags = prefs.getStringList('tags');
     setState(() {
-      if (fav_tags != null)
-      _hotTags.addAll(fav_tags);
+      if (fav_tags != null) _hotTags.addAll(fav_tags);
     });
   }
 
@@ -99,8 +97,7 @@ class _HotTagsPageState extends State<HotTagsPage>
     setState(() {
       _hotTags.clear();
       _hotTags.addAll(_initialhotTags);
-      if (fav_tags != null)
-      _hotTags.addAll(fav_tags);
+      if (fav_tags != null) _hotTags.addAll(fav_tags);
     });
   }
 }
