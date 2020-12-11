@@ -206,8 +206,6 @@ class _SearchResultPageState extends State<SearchResultPage>
       }
     } else {
       for (var tag in _tags) {
-        if (tag.contains('-')) continue;
-
         saved.remove(tag);
       }
     }
