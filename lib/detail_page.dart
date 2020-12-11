@@ -167,22 +167,13 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     );
   }
 
-  Future<Widget> _buildVideoPreview() async {
-    final uint8list = await VideoThumbnail.thumbnailFile(
-      video: widget.url,
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.WEBP,
-      maxHeight: 64,
-      // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
-      quality: 75,
-    );
-
+  Widget _buildVideoPreview() {
     return Stack(
       children: [
         GestureDetector(
           onTap: _goToGallery,
-          child: ExtendedImage.file(
-            File(uint8list),
+          child: ExtendedImage.network(
+            widget.thumbnailUrl,
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fitWidth,
             mode: ExtendedImageMode.gesture,

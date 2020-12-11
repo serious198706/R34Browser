@@ -76,17 +76,20 @@ class _SearchResultPageState extends State<SearchResultPage>
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
-          backgroundColor: primaryColor,
-          title: Text(_title, style: TextStyle(color: textColor)),
-          iconTheme: IconThemeData(color: textColor),
-      actions: [
-        IconButton(icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border), onPressed: () {
-          setState(() {
-            fav = !fav;
-            _save();
-          });
-        })
-      ],),
+        backgroundColor: primaryColor,
+        title: Text(_title, style: TextStyle(color: textColor)),
+        iconTheme: IconThemeData(color: textColor),
+        actions: [
+          IconButton(
+              icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+              onPressed: () {
+                setState(() {
+                  fav = !fav;
+                  _save();
+                });
+              })
+        ],
+      ),
       body: Stack(
         children: [
           SizedBox(
@@ -94,14 +97,26 @@ class _SearchResultPageState extends State<SearchResultPage>
             height: MediaQuery.of(context).size.height,
             child: LoadingMoreList(
               ListConfig<R34Image>(
-                indicatorBuilder: (_, __) {
-                  return Center(
+                indicatorBuilder: (_, status) {
+                  if (status == IndicatorStatus.empty) {
+                    return Center(
+                      child: Text('No posts.', style: TextStyle(color: textColor),),
+                    );
+                  } else if (status == IndicatorStatus.error) {
+                    return Center(
+                      child: Text('Error.', style: TextStyle(color: textColor),),
+                    );
+                  } else {
+                    return Center(
                       child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1,
-                          )));
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 itemBuilder: _buildImage,
                 sourceList: _repository,
@@ -114,80 +129,9 @@ class _SearchResultPageState extends State<SearchResultPage>
               ),
             ),
           ),
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: animation.value,
-            // color: darkerPrimaryColor,
-            padding: EdgeInsets.all(16),
-            child: Wrap(children: _buildTags(), spacing: 8.0, runSpacing: 8.0),
-          )
         ],
       ),
     );
-  }
-
-  List<Widget> _buildTags() {
-    List<Widget> chips = _tags
-        .map(
-          (tag) => Chip(
-            label: Text(tag),
-            deleteIcon: Icon(Icons.remove, size: 12),
-            onDeleted: () {
-              setState(() {
-                _tags.remove(tag);
-                changed = true;
-              });
-            },
-          ),
-        )
-        .toList();
-
-    chips.add(Chip(
-      label: Text('ADD'),
-      deleteIcon: Icon(Icons.add, size: 12),
-      onDeleted: () async {
-        TextEditingController tc = TextEditingController();
-        var tag = await showDialog<String>(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text('Input Tag'),
-                content: TextField(
-                  controller: tc,
-                ),
-                actions: [
-                  FlatButton(
-                    child: Text('CANCEL', style: TextStyle(color: Colors.grey)),
-                    onPressed: () {
-                      Navigator.of(context).pop('');
-                    },
-                  ),
-                  FlatButton(
-                    child: Text('ADD', style: TextStyle(color: textColor)),
-                    onPressed: () {
-                      if (tc.text == null || tc.text.isEmpty) {
-                        return;
-                      } else {
-                        Navigator.of(context).pop(tc.text);
-                      }
-                    },
-                  ),
-                ],
-              );
-            });
-
-        if (tag == null || tag.isEmpty) {
-          return;
-        }
-
-        setState(() {
-          _tags.add(tag);
-          changed = true;
-        });
-      },
-    ));
-
-    return chips;
   }
 
   Widget _buildImage(BuildContext context, R34Image image, int index) {
