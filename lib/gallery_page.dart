@@ -1,7 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -133,8 +132,8 @@ class _GalleryPageState extends State<GalleryPage>
                     IconButton(
                         icon: Icon(Icons.loop,
                             color: _controller.value.isLooping
-                                ? primaryColor
-                                : primaryColor.withAlpha(100)),
+                                ? Colors.white
+                                : Colors.white.withAlpha(100)),
                         onPressed: () {
                           setState(() {
                             _controller
@@ -143,7 +142,7 @@ class _GalleryPageState extends State<GalleryPage>
                         }),
                     Spacer(),
                     IconButton(
-                      icon: Icon(Icons.fast_rewind, color: primaryColor),
+                      icon: Icon(Icons.fast_rewind, color: Colors.white),
                       onPressed: () {
                         var current = _controller.value.position;
                         if (current.inSeconds > 5) {
@@ -160,7 +159,7 @@ class _GalleryPageState extends State<GalleryPage>
                           _controller.value.isPlaying
                               ? Icons.pause
                               : Icons.play_arrow,
-                          color: primaryColor),
+                          color: Colors.white),
                       onPressed: () {
                         setState(() {
                           if (_controller.value.position ==
@@ -181,7 +180,7 @@ class _GalleryPageState extends State<GalleryPage>
                     ),
                     SizedBox(width: 12),
                     IconButton(
-                      icon: Icon(Icons.fast_forward, color: primaryColor),
+                      icon: Icon(Icons.fast_forward, color: Colors.white),
                       onPressed: () {
                         var current = _controller.value.position;
                         if (current.inSeconds + 5 <=
@@ -199,7 +198,7 @@ class _GalleryPageState extends State<GalleryPage>
                             _isFullscreen
                                 ? Icons.fullscreen_exit
                                 : Icons.fullscreen,
-                            color: primaryColor),
+                            color: Colors.white),
                         onPressed: () {
                           setState(() {
                             _isFullscreen = !_isFullscreen;

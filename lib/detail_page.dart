@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:r34_browser/gallery_page.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:r34_browser/platform_channel.dart';
 
 import 'themes.dart';
 
@@ -25,8 +21,6 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   List<String> _tags = List();
-
-  double _bottomPosition = 0;
 
   @override
   void initState() {
@@ -82,15 +76,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           Expanded(
             child: FlatButton(
               onPressed: () async {
-                var path = await _findLocalPath();
-
-                print('saving to $path');
-                await FlutterDownloader.enqueue(
-                    url: widget.url,
-                    savedDir: path,
-                    showNotification: false,
-                    openFileFromNotification: false);
-
+                DownloadFile.downloadFile(widget.url);
                 Fluttertoast.showToast(msg: 'Added to download');
               },
               child: Text('DOWNLOAD'),
@@ -213,10 +199,5 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
       return GalleryPage(widget.url);
     }));
-  }
-
-  Future<String> _findLocalPath() async {
-    final directory = await getExternalStorageDirectory();
-    return directory.path;
   }
 }
