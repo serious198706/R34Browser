@@ -91,14 +91,30 @@ class _SearchResultPageState extends State<SearchResultPage>
                 indicatorBuilder: (_, status) {
                   if (status == IndicatorStatus.empty) {
                     return Center(
-                      child: Text('No posts.', style: TextStyle(color: textColor),),
+                      child: Text(
+                        'No posts.',
+                        style: TextStyle(color: textColor),
+                      ),
                     );
                   } else if (status == IndicatorStatus.error) {
                     return Center(
-                      child: Text('Error.', style: TextStyle(color: textColor),),
+                      child: Text(
+                        'Error.',
+                        style: TextStyle(color: textColor),
+                      ),
                     );
+                  } else if (status == IndicatorStatus.noMoreLoad) {
+                    return Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'NO MORE POSTS',
+                          style: TextStyle(color: textColor),
+                        ));
                   } else {
-                    return Center(
+                    return Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: 24,
                         height: 24,

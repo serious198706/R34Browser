@@ -58,12 +58,12 @@ class _HotTagsPageState extends State<HotTagsPage>
           child: Icon(Icons.refresh),
           onPressed: () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            List<String> fav_tags = prefs.getStringList('tags');
+            List<String> favTags = prefs.getStringList('tags');
 
             setState(() {
               _hotTags.clear();
               _hotTags.addAll(_initialhotTags);
-              if (fav_tags != null) _hotTags.addAll(fav_tags);
+              if (favTags != null) _hotTags.addAll(favTags);
             });
           }),
     );
@@ -80,9 +80,9 @@ class _HotTagsPageState extends State<HotTagsPage>
 
   void _readSaved() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> fav_tags = prefs.getStringList('tags');
+    List<String> favTags = prefs.getStringList('tags');
     setState(() {
-      if (fav_tags != null) _hotTags.addAll(fav_tags);
+      if (favTags != null) _hotTags.addAll(favTags);
     });
   }
 
@@ -92,12 +92,12 @@ class _HotTagsPageState extends State<HotTagsPage>
     }));
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> fav_tags = prefs.getStringList('tags');
+    List<String> favTags = prefs.getStringList('tags');
 
     setState(() {
       _hotTags.clear();
       _hotTags.addAll(_initialhotTags);
-      if (fav_tags != null) _hotTags.addAll(fav_tags);
+      if (favTags != null) _hotTags.addAll(favTags);
     });
   }
 }

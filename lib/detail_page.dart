@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:r34_browser/gallery_page.dart';
 import 'package:r34_browser/platform_channel.dart';
+import 'package:r34_browser/search_result_page.dart';
 
 import 'themes.dart';
 
@@ -21,12 +22,22 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   List<String> _tags = List();
+  ScrollController _controller = ScrollController();
+  bool _showFab = true;
 
   @override
   void initState() {
     super.initState();
     _tags = widget.tags.split(' ');
     _tags.removeWhere((element) => element.isEmpty);
+
+    _controller.addListener(() {
+      if (_controller.offset >= 10) {
+        setState(() {
+          _showFab = false;
+        });
+      }
+    });
   }
 
   @override
@@ -34,6 +45,14 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     return SafeArea(
         child: Scaffold(
       backgroundColor: primaryColor,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: lighterPrimaryColor,
+        onPressed: _download,
+        child: Icon(
+          Icons.file_download,
+          color: textColor,
+        ),
+      ),
       body: _buildBody(),
       // appBar: AppBar(
       //   backgroundColor: primaryColor,
@@ -49,14 +68,14 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       fit: StackFit.expand,
       children: [
         ListView(
+          controller: _controller,
           children: [
             widget.type == 0 ? _buildImageViewer() : _buildVideoPreview(),
             _buildTags(),
             SizedBox(height: 30)
           ],
         ),
-        _buildAppBar(),
-        _buildButtons(),
+        _buildAppBar()
       ],
     );
   }
@@ -67,29 +86,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         top: 0,
         right: 0,
         child: AppBar(backgroundColor: Colors.transparent, elevation: 0));
-  }
-
-  Widget _buildButtons() {
-    return Positioned(
-      child: Row(
-        children: [
-          Expanded(
-            child: FlatButton(
-              onPressed: () async {
-                DownloadFile.downloadFile(widget.url);
-                Fluttertoast.showToast(msg: 'Added to download');
-              },
-              child: Text('DOWNLOAD'),
-              textColor: textColor,
-              color: primaryColor,
-            ),
-          )
-        ],
-      ),
-      left: 0,
-      bottom: 0,
-      right: 0,
-    );
   }
 
   Widget _buildTags() {
@@ -106,9 +102,10 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
             width: MediaQuery.of(context).size.width,
             child: Text.rich(
               TextSpan(
-                  text: '',
-                  style: TextStyle(color: Colors.white),
-                  children: _tags.map(_buildTag).toList()),
+                text: '',
+                style: TextStyle(color: Colors.white),
+                children: _tags.map(_buildTag).toList(),
+              ),
             ),
           )
         ],
@@ -119,9 +116,12 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   TextSpan _buildTag(String tag) {
     return TextSpan(
         text: '#$tag ',
+        style: TextStyle(height: 2, wordSpacing: 1.5),
         recognizer: TapGestureRecognizer()
           ..onTap = () {
-            Navigator.of(context).pop(tag);
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+              return SearchResultPage([tag], false);
+            }));
           });
   }
 
@@ -193,6 +193,11 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         )
       ],
     );
+  }
+
+  void _download() {
+    DownloadFile.downloadFile(widget.url);
+    Fluttertoast.showToast(msg: 'Added to download');
   }
 
   void _goToGallery() {
