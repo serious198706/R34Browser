@@ -37,10 +37,6 @@ class MainActivity: FlutterActivity() {
                     val t = url.split("/")
                     val fileName = t[t.size - 1]
 
-                    Log.d("TTTTTTTT", path!!)
-                    Log.d("TTTTTTTT", url!!)
-                    Log.d("TTTTTTTT", fileName!!)
-
                     val request: Request = Request.Builder().url(url).build()
                     OkHttpClient().newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {

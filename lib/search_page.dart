@@ -6,7 +6,6 @@ import 'package:r34_browser/models.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
 import 'package:r34_browser/textfield_tags.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -150,22 +149,8 @@ class _SearchPageState extends State<SearchPage>
   }
 
   void search() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> saved = prefs.getStringList('tags');
-    bool fav = true;
-
-    for (var tag in _tags) {
-      if (saved != null && !saved.contains(tag)) {
-        fav = false;
-        break;
-      } else if (saved == null) {
-        fav = false;
-        break;
-      }
-    }
-
     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return SearchResultPage(_tags, fav);
+      return SearchResultPage(_tags);
     }));
   }
 }

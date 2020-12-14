@@ -3,59 +3,38 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:r34_browser/detail_page.dart';
+import 'package:r34_browser/preference_utils.dart';
 import 'package:r34_browser/r34image.dart';
 import 'package:r34_browser/themes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml/xml.dart';
 
 class SearchResultPage extends StatefulWidget {
   final List<String> tags;
-  final bool fav;
 
-  const SearchResultPage(this.tags, this.fav);
+  const SearchResultPage(this.tags);
 
   @override
   _SearchResultPageState createState() => _SearchResultPageState();
 }
 
 class _SearchResultPageState extends State<SearchResultPage>
-    with SingleTickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
-
+    with AutomaticKeepAliveClientMixin {
   R34ImageRepository _repository;
 
   bool isTaped = false;
   bool changed = false;
 
-  List<String> _tags;
+  List<String> _tags = List();
   String _title = '';
   bool fav = false;
 
-  IconData _appbarIcon = Icons.search;
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    fav = widget.fav;
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this);
-    animation = Tween(begin: 0.0, end: 100.0).animate(
-      new CurvedAnimation(
-        parent: controller,
-        curve: new Interval(
-          0.000,
-          0.800,
-          curve: Curves.linear,
-        ),
-      ),
-    )..addListener(() {
-        setState(() {
-          // the state that has changed here is the animation object’s value
-        });
-      });
-
-    _tags = List();
+    _loadFav();
     _tags.addAll(widget.tags);
     _title = _tags.join(' ');
     _repository = R34ImageRepository();
@@ -64,6 +43,8 @@ class _SearchResultPageState extends State<SearchResultPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
@@ -71,14 +52,11 @@ class _SearchResultPageState extends State<SearchResultPage>
         title: Text(_title, style: TextStyle(color: textColor)),
         iconTheme: IconThemeData(color: textColor),
         actions: [
-          IconButton(
-              icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-              onPressed: () {
-                setState(() {
-                  fav = !fav;
-                  _save();
-                });
-              })
+          // don't show fav icon when there is more than 1 tag
+          if (widget.tags.length == 1)
+            IconButton(
+                icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+                onPressed: _save)
         ],
       ),
       body: Stack(
@@ -190,15 +168,11 @@ class _SearchResultPageState extends State<SearchResultPage>
   }
 
   void _save() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> saved = prefs.getStringList('tags');
-    if (saved == null) {
-      saved = List();
-    }
+    List<String> saved = await getSaved();
 
-    if (fav) {
+    if (!fav) {
       for (var tag in _tags) {
-        if (tag.contains('-')) continue;
+        if (tag.startsWith('-')) continue;
 
         if (!saved.contains(tag)) {
           saved.add(tag);
@@ -210,7 +184,26 @@ class _SearchResultPageState extends State<SearchResultPage>
       }
     }
 
-    await prefs.setStringList('tags', saved);
+    await save(_tags);
+
+    setState(() {
+      fav = !fav;
+    });
+  }
+
+  void _loadFav() async {
+    List<String> saved = await getSaved();
+
+    if (saved.isEmpty || widget.tags.isEmpty) {
+      setState(() {
+        fav = false;
+      });
+      return;
+    }
+
+    setState(() {
+      fav = saved.contains(widget.tags[0]);
+    });
   }
 }
 
@@ -218,7 +211,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
   int pageindex = 1;
   bool _hasMore = true;
   bool forceRefresh = false;
-  String tags = '';
+  String allTags = '';
 
   List<String> negativeTags = [
     '-mammal',
@@ -227,12 +220,13 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
     '-horn',
     '-balls',
     '-feathers',
-    '-feather'
+    '-feather',
+    '-male_only',
   ];
 
   void setTags(List<String> tags) {
     tags.addAll(negativeTags);
-    this.tags = tags.join('+');
+    allTags = tags.join('+');
   }
 
   @override
@@ -255,11 +249,13 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
     String url = "";
     if (this.length == 0) {
       url =
-          "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index";
+          "https://rule34.xxx/index.php?page=dapi&tags=${allTags}&s=post&limit=10&q=index";
     } else {
       url =
-          "https://rule34.xxx/index.php?page=dapi&tags=${this.tags}&s=post&limit=10&q=index&pid=${pageindex}";
+          "https://rule34.xxx/index.php?page=dapi&tags=${allTags}&s=post&limit=10&q=index&pid=${pageindex}";
     }
+
+    print(url);
 
     bool isSuccess = false;
 

@@ -120,7 +120,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         recognizer: TapGestureRecognizer()
           ..onTap = () {
             Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-              return SearchResultPage([tag], false);
+              return SearchResultPage([tag]);
             }));
           });
   }

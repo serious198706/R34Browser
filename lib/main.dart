@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:r34_browser/hot_tags_page.dart';
 import 'package:r34_browser/my_page.dart';
+import 'package:r34_browser/preference_utils.dart';
 import 'package:r34_browser/search_page.dart';
 import 'package:r34_browser/themes.dart';
 
 import 'themes.dart';
 
 void main() {
+  clearWTF();
   runApp(MyApp());
+}
+
+void clearWTF() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  var savedTags = await getSaved();
+  savedTags.removeWhere((element) => element.startsWith('-'));
+  await save(savedTags);
 }
 
 class MyApp extends StatelessWidget {

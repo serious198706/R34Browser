@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:r34_browser/preference_utils.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +27,38 @@ class _HotTagsPageState extends State<HotTagsPage>
     'bewyx',
     'hydrafxx',
     'tiaz-3dx',
-    'bulginsenpai'
+    'bulginsenpai',
+    'shir0qq',
+    'ninjartist',
+    'gwen_stacy',
+    'joelgraphz',
+    'velocihaxor',
+    'overwatch',
+    'mchsuga7',
+    'bifrost3d',
+    'strauzek',
+    'lerico213',
+    'tyviania',
+    'grand_cupido',
+    'stukove',
+    'fugtrup',
+    'pewposterous',
+    'lazyprocrastinator',
+    'lunafreya_nox_fleuret',
+    'nekoanimo',
+    'sex_from_behind',
+    'long_video',
+    'allfs3d',
+    'masqueradesfm',
+    'generalbutch',
+    'laosduude',
+    '60fps',
+    '4k',
+    'blender',
+    'forceballfx',
+    'arhoangel',
+    'sound',
+    'gocrazygonsfw'
   ];
 
   List<String> _hotTags = List();
@@ -37,7 +69,6 @@ class _HotTagsPageState extends State<HotTagsPage>
   @override
   void initState() {
     super.initState();
-    _hotTags.addAll(_initialhotTags);
     _readSaved();
   }
 
@@ -46,19 +77,21 @@ class _HotTagsPageState extends State<HotTagsPage>
     super.build(context);
     return Scaffold(
       backgroundColor: lighterPrimaryColor,
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: Wrap(
-          children: _buildTags(),
-          spacing: 8.0,
-          runSpacing: 8.0,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Wrap(
+            children: _buildTags(),
+            spacing: 8.0,
+            runSpacing: 4.0,
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.refresh),
           onPressed: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            List<String> favTags = prefs.getStringList('tags');
+            List<String> favTags = await getSaved();
+            favTags.removeWhere((element) => element.startsWith('-'));
 
             setState(() {
               _hotTags.clear();
@@ -79,20 +112,23 @@ class _HotTagsPageState extends State<HotTagsPage>
   }
 
   void _readSaved() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> favTags = prefs.getStringList('tags');
+    _hotTags.addAll(_initialhotTags);
+
+    List<String> favTags = await getSaved();
+
     setState(() {
-      if (favTags != null) _hotTags.addAll(favTags);
+      _hotTags.addAll(favTags);
     });
+
+    print(_hotTags);
   }
 
   void search(String tag) async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return SearchResultPage([tag], true);
+      return SearchResultPage([tag]);
     }));
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> favTags = prefs.getStringList('tags');
+    List<String> favTags = await getSaved();
 
     setState(() {
       _hotTags.clear();
