@@ -88,17 +88,18 @@ class _HotTagsPageState extends State<HotTagsPage>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.refresh),
-          onPressed: () async {
-            List<String> favTags = await getSaved();
-            favTags.removeWhere((element) => element.startsWith('-'));
+        child: Icon(Icons.refresh),
+        onPressed: () async {
+          List<String> favTags = await getSaved();
+          favTags.removeWhere((element) => element.startsWith('-'));
 
-            setState(() {
-              _hotTags.clear();
-              _hotTags.addAll(_initialhotTags);
-              if (favTags != null) _hotTags.addAll(favTags);
-            });
-          }),
+          setState(() {
+            _hotTags.clear();
+            _hotTags.addAll(_initialhotTags);
+            if (favTags != null) _hotTags.addAll(favTags);
+          });
+        },
+      ),
     );
   }
 
