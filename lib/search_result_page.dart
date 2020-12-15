@@ -236,8 +236,6 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
   Future<bool> refresh([bool clearBeforeRequest = false]) async {
     _hasMore = true;
     pageindex = 1;
-    //force to refresh list when you don't want clear list before request
-    //for the case, if your list already has 20 items.
     forceRefresh = !clearBeforeRequest;
     var result = await super.refresh(clearBeforeRequest);
     forceRefresh = false;
@@ -249,13 +247,11 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
     String url = "";
     if (this.length == 0) {
       url =
-          "https://rule34.xxx/index.php?page=dapi&tags=${allTags}&s=post&limit=10&q=index";
+          "https://rule34.xxx/index.php?page=dapi&tags=$allTags&s=post&limit=10&q=index&rating=explicit";
     } else {
       url =
-          "https://rule34.xxx/index.php?page=dapi&tags=${allTags}&s=post&limit=10&q=index&pid=${pageindex}";
+          "https://rule34.xxx/index.php?page=dapi&tags=$allTags&s=post&limit=10&q=index&rating=explicit&pid=$pageindex";
     }
-
-    print(url);
 
     bool isSuccess = false;
 
