@@ -29,7 +29,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    _getPreview();
+    _initData();
   }
 
   @override
@@ -72,11 +72,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
             Stack(
               fit: StackFit.expand,
               children: [
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 4),
+                ListView.builder(
                   itemCount: _videoData.length,
                   itemBuilder: _buildVideoItems,
                 ),
@@ -89,56 +85,56 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Widget _buildVideoItems(BuildContext context, int index) {
-    return Hero(
-        tag: _videoData[index].filePath + index.toString(),
-        child: _buildVideo(index));
-  }
-
-  Widget _buildImageItems(BuildContext context, int index) {
+  Widget _buildImageItems(_, int index) {
     return Hero(
         tag: _imageData[index].filePath + index.toString(),
         child: _buildImage(index));
   }
 
-  Widget _buildVideo(int index) {
-    return GestureDetector(
-      onTap: () => _goVideo(index),
-      child: FutureBuilder(
-        future: _generatePreview(index),
-        builder: (_, data) {
-          if (data.hasData) {
-            return Container(
-              height: 200,
-              width: 200,
-              child: Stack(
-                children: [
-                  ExtendedImage.file(
-                    File(data.data),
-                    width: 200,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    width: 200,
-                    height: 200,
-                    color: Colors.black.withAlpha(100),
-                  ),
-                  Center(
-                    child: Icon(
-                      Icons.play_circle_outline_rounded,
-                      color: textColor,
-                      size: 40,
+  Widget _buildVideoItems(_, int index) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 2),
+      child: GestureDetector(
+        onTap: () => _goVideo(index),
+        child: FutureBuilder(
+          future: _generatePreview(index),
+          builder: (_, data) {
+            if (data.hasData) {
+              return SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 200,
+                child: Stack(
+                  children: [
+                    ExtendedImage.file(
+                      File(data.data),
+                      width: MediaQuery.of(context).size.width,
+                      height: 200,
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return SizedBox(
-                width: 48, height: 48, child: CircularProgressIndicator());
-          }
-        },
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.black26, Colors.black26])),
+                    ),
+                    Center(
+                      child: Icon(
+                        Icons.play_arrow_outlined,
+                        color: Colors.white.withAlpha(200),
+                        size: 80,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return SizedBox(
+                  width: 48, height: 48, child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
     );
   }
@@ -175,7 +171,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
     return thumbnailFilePath;
   }
 
-  void _getPreview() async {
+  void _initData() async {
     var dir = Directory('/sdcard/Pictures/r34');
 
     List<File> tempFiles = dir.listSync().map((e) => File(e.path)).toList();
