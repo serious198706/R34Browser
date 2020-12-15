@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:r34_browser/preference_utils.dart';
 import 'package:r34_browser/search_result_page.dart';
 import 'package:r34_browser/themes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HotTagsPage extends StatefulWidget {
   @override
@@ -11,57 +10,6 @@ class HotTagsPage extends StatefulWidget {
 
 class _HotTagsPageState extends State<HotTagsPage>
     with AutomaticKeepAliveClientMixin {
-  List<String> _initialhotTags = [
-    'auxtasy',
-    'yeero',
-    'fireboxstudio',
-    'discko',
-    'fpsblyck',
-    'junkerz',
-    'vgerotica',
-    'xordel',
-    'grand_cupido',
-    'arti202',
-    'tabesc3d',
-    'volkor',
-    'bewyx',
-    'hydrafxx',
-    'tiaz-3dx',
-    'bulginsenpai',
-    'shir0qq',
-    'ninjartist',
-    'gwen_stacy',
-    'joelgraphz',
-    'velocihaxor',
-    'overwatch',
-    'mchsuga7',
-    'bifrost3d',
-    'strauzek',
-    'lerico213',
-    'tyviania',
-    'grand_cupido',
-    'stukove',
-    'fugtrup',
-    'pewposterous',
-    'lazyprocrastinator',
-    'lunafreya_nox_fleuret',
-    'nekoanimo',
-    'sex_from_behind',
-    'long_video',
-    'allfs3d',
-    'masqueradesfm',
-    'generalbutch',
-    'laosduude',
-    '60fps',
-    '4k',
-    'blender',
-    'forceballfx',
-    'arhoangel',
-    'sound',
-    'gocrazygonsfw',
-    'pewposterous',
-  ];
-
   List<String> _hotTags = List();
 
   @override
@@ -89,18 +37,7 @@ class _HotTagsPageState extends State<HotTagsPage>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: () async {
-          List<String> favTags = await getSaved();
-          favTags.removeWhere((element) => element.startsWith('-'));
-
-          setState(() {
-            _hotTags.clear();
-            _hotTags.addAll(_initialhotTags);
-            if (favTags != null) _hotTags.addAll(favTags);
-          });
-        },
-      ),
+          child: Icon(Icons.refresh), onPressed: _readSaved),
     );
   }
 
@@ -114,9 +51,11 @@ class _HotTagsPageState extends State<HotTagsPage>
   }
 
   void _readSaved() async {
-    _hotTags.addAll(_initialhotTags);
+    _hotTags.clear();
+    // _hotTags.addAll(_initialhotTags);
 
     List<String> favTags = await getSaved();
+    favTags.removeWhere((element) => element.startsWith('-'));
 
     setState(() {
       _hotTags.addAll(favTags);
@@ -131,10 +70,11 @@ class _HotTagsPageState extends State<HotTagsPage>
     }));
 
     List<String> favTags = await getSaved();
+    favTags.removeWhere((element) => element.startsWith('-'));
 
     setState(() {
       _hotTags.clear();
-      _hotTags.addAll(_initialhotTags);
+      // _hotTags.addAll(_initialhotTags);
       if (favTags != null) _hotTags.addAll(favTags);
     });
   }

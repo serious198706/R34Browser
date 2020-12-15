@@ -8,6 +8,58 @@ import 'package:r34_browser/themes.dart';
 
 import 'themes.dart';
 
+List<String> _initialhotTags = [
+  'auxtasy',
+  'yeero',
+  'fireboxstudio',
+  'discko',
+  'fpsblyck',
+  'junkerz',
+  'vgerotica',
+  'xordel',
+  'grand_cupido',
+  'arti202',
+  'tabesc3d',
+  'volkor',
+  'bewyx',
+  'hydrafxx',
+  'tiaz-3dx',
+  'bulginsenpai',
+  'shir0qq',
+  'ninjartist',
+  'gwen_stacy',
+  'joelgraphz',
+  'velocihaxor',
+  'overwatch',
+  'mchsuga7',
+  'bifrost3d',
+  'strauzek',
+  'lerico213',
+  'tyviania',
+  'grand_cupido',
+  'stukove',
+  'fugtrup',
+  'pewposterous',
+  'lazyprocrastinator',
+  'lunafreya_nox_fleuret',
+  'nekoanimo',
+  'sex_from_behind',
+  'long_video',
+  'allfs3d',
+  'masqueradesfm',
+  'generalbutch',
+  'laosduude',
+  '60fps',
+  '4k',
+  'blender',
+  'forceballfx',
+  'arhoangel',
+  'sound',
+  'gocrazygonsfw',
+  'worldofleah',
+  'strauzek'
+];
+
 void main() {
   clearWTF();
   runApp(MyApp());
@@ -16,6 +68,7 @@ void main() {
 void clearWTF() async {
   WidgetsFlutterBinding.ensureInitialized();
   var savedTags = await getSaved();
+  // savedTags.addAll(_initialhotTags);
   savedTags.removeWhere((element) => element.startsWith('-'));
   await save(savedTags);
 }

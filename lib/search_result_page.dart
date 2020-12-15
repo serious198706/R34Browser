@@ -39,6 +39,7 @@ class _SearchResultPageState extends State<SearchResultPage>
     _title = '#' + _tags.join(' #');
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
+    _repository.refresh();
   }
 
   @override
@@ -105,6 +106,7 @@ class _SearchResultPageState extends State<SearchResultPage>
                 },
                 itemBuilder: _buildImage,
                 sourceList: _repository,
+                autoRefresh: false,
                 extendedListDelegate:
                     SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -184,7 +186,7 @@ class _SearchResultPageState extends State<SearchResultPage>
       }
     }
 
-    await save(_tags);
+    await save(saved);
 
     setState(() {
       fav = !fav;
@@ -225,8 +227,8 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
   ];
 
   void setTags(List<String> tags) {
-    tags.addAll(negativeTags);
-    allTags = tags.join('+');
+    allTags = (tags + negativeTags).join('+');
+    print(allTags);
   }
 
   @override

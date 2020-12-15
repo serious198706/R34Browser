@@ -32,11 +32,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     _tags.removeWhere((element) => element.isEmpty);
 
     _controller.addListener(() {
-      if (_controller.offset >= 10) {
-        setState(() {
-          _showFab = false;
-        });
-      }
+      setState(() {
+        _showFab = _controller.offset < 10;
+      });
     });
   }
 
@@ -45,14 +43,16 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     return SafeArea(
         child: Scaffold(
       backgroundColor: primaryColor,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: lighterPrimaryColor,
-        onPressed: _download,
-        child: Icon(
-          Icons.file_download,
-          color: textColor,
-        ),
-      ),
+      floatingActionButton: _showFab
+          ? FloatingActionButton(
+              backgroundColor: lighterPrimaryColor,
+              onPressed: _download,
+              child: Icon(
+                Icons.file_download,
+                color: textColor,
+              ),
+            )
+          : null,
       body: _buildBody(),
       // appBar: AppBar(
       //   backgroundColor: primaryColor,
