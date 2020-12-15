@@ -2,7 +2,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'themes.dart';
 
@@ -27,7 +26,7 @@ class _GalleryPageState extends State<GalleryPage>
   @override
   void initState() {
     super.initState();
-    if (widget.url.endsWith('webm')) {
+    if (widget.url.endsWith('webm') || widget.url.endsWith('mp4')) {
       _controller = VideoPlayerController.network(widget.url)
         ..initialize().then((value) => {setState(() {})});
       _controller.addListener(() {
@@ -69,7 +68,7 @@ class _GalleryPageState extends State<GalleryPage>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          widget.url.endsWith('webm')
+          widget.url.endsWith('webm') || widget.url.endsWith('mp4')
               ? _buildVideoPlayer()
               : _buildImageViewer(),
           Positioned(
@@ -240,10 +239,5 @@ class _GalleryPageState extends State<GalleryPage>
         enableSlideOutPage: true,
       ),
     );
-  }
-
-  Future<String> _findLocalPath() async {
-    final directory = await getExternalStorageDirectory();
-    return directory.path;
   }
 }

@@ -125,7 +125,7 @@ class _SearchResultPageState extends State<SearchResultPage>
         var result =
             await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
           var type = 0;
-          if (image.fileUrl.endsWith('webm')) {
+          if (image.fileUrl.endsWith('webm') || image.fileUrl.endsWith('mp4')) {
             type = 1;
           }
           return DetailPage(
@@ -158,7 +158,7 @@ class _SearchResultPageState extends State<SearchResultPage>
               }
             },
           ),
-          if (image.fileUrl.endsWith('webm'))
+          if (image.fileUrl.endsWith('webm') || image.fileUrl.endsWith('mp4'))
             Align(
                 alignment: Alignment.center,
                 child: Icon(Icons.play_arrow, color: Colors.white70, size: 90))
@@ -266,7 +266,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
         final fileUrl = post.getAttribute('file_url');
         var thumbnailUrl = post.getAttribute('preview_url');
         var sampleUrl = post.getAttribute('sample_url');
-        if (sampleUrl.endsWith("webm")) {
+        if (sampleUrl.endsWith('webm') || sampleUrl.endsWith('mp4')) {
           sampleUrl = post.getAttribute('preview_url');
         }
         final tags = post.getAttribute('tags');

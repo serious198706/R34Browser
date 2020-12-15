@@ -81,6 +81,11 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
             ),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          heroTag: Object(),
+          child: Icon(Icons.refresh),
+          onPressed: _initData,
+        ),
       ),
     );
   }
@@ -154,8 +159,8 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
     Directory thumbnailPath = await getExternalStorageDirectory();
     String path = _videoData[index].filePath;
     String fileName = path.substring(path.lastIndexOf('/'));
-    String thumbnailFilePath =
-        thumbnailPath.path + fileName.replaceAll('webm', 'png');
+    String thumbnailFilePath = thumbnailPath.path +
+        fileName.replaceAll('webm', 'png').replaceAll('mp4', 'png');
 
     if (!File(thumbnailFilePath).existsSync()) {
       thumbnailFilePath = await VideoThumbnail.thumbnailFile(
@@ -172,6 +177,10 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
   }
 
   void _initData() async {
+    setState(() {
+      _loading = true;
+    });
+
     var dir = Directory('/sdcard/Pictures/r34');
 
     List<File> tempFiles = dir.listSync().map((e) => File(e.path)).toList();
@@ -179,8 +188,12 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
       return f2.lastModifiedSync().compareTo(f1.lastModifiedSync());
     });
 
-    List videos = tempFiles.where((e) => e.path.endsWith('webm')).toList();
-    List images = tempFiles.where((e) => !e.path.endsWith('webm')).toList();
+    List videos = tempFiles
+        .where((e) => e.path.endsWith('webm') || e.path.endsWith('mp4'))
+        .toList();
+    List images = tempFiles
+        .where((e) => !e.path.endsWith('webm') && !e.path.endsWith('mp4'))
+        .toList();
 
     setState(() {
       _videoData = videos.map((e) => Item(e.path)).toList();
