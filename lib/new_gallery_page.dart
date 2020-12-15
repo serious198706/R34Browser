@@ -6,7 +6,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:r34_browser/gallery_page.dart';
 import 'package:r34_browser/my_page.dart';
-import 'package:r34_browser/themes.dart';
 
 class FullscreenGallery extends StatefulWidget {
   final List<Item> data;
@@ -71,11 +70,7 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
         child: ExtendedImageGesturePageView.builder(
           itemCount: widget.data.length,
           itemBuilder: (context, index) {
-            if (widget.data[index].type == 1) {
-              return _buildVideo(index);
-            } else {
-              return _buildImage(index);
-            }
+            return _buildImage(index);
           },
           onPageChanged: (int index) {
             _currentIndex = index;
@@ -88,28 +83,6 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
               gestureDetails.totalScale <= 1.0,
           scrollDirection: Axis.horizontal,
           physics: ClampingScrollPhysics(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVideo(int index) {
-    return GestureDetector(
-      onTap: () => _go(widget.data[index].filePath),
-      child: Container(
-        color: Colors.black,
-        width: MediaQuery.of(context).size.width,
-        child: Stack(
-          children: [
-            Center(
-                child: ExtendedImage.file(
-                    File(widget.data[index].thumbnailFilePath),
-                    width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.cover)),
-            Center(
-              child: Icon(Icons.play_arrow, color: textColor, size: 80),
-            ),
-          ],
         ),
       ),
     );
