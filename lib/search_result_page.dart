@@ -36,7 +36,7 @@ class _SearchResultPageState extends State<SearchResultPage>
     super.initState();
     _loadFav();
     _tags.addAll(widget.tags);
-    _title = _tags.join(' ');
+    _title = '#' + _tags.join(' #');
     _repository = R34ImageRepository();
     _repository.setTags(_tags);
   }
