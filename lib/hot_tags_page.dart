@@ -58,7 +58,8 @@ class _HotTagsPageState extends State<HotTagsPage>
     'forceballfx',
     'arhoangel',
     'sound',
-    'gocrazygonsfw'
+    'gocrazygonsfw',
+    'pewposterous',
   ];
 
   List<String> _hotTags = List();
