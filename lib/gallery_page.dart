@@ -19,8 +19,6 @@ class _GalleryPageState extends State<GalleryPage>
   VideoPlayerController _controller;
   bool _buttonsShowing = false;
   bool _isFullscreen = false;
-  List<String> _tags = List();
-
   double _bottomPosition = 0;
 
   @override
@@ -55,7 +53,21 @@ class _GalleryPageState extends State<GalleryPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.black, body: _buildBody());
+    return WillPopScope(
+        onWillPop: () async {
+          if (_isFullscreen) {
+            setState(() {
+              _isFullscreen = false;
+            });
+            SystemChrome.setPreferredOrientations(
+                [DeviceOrientation.portraitUp]);
+            SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+            return false;
+          } else {
+            return true;
+          }
+        },
+        child: Scaffold(backgroundColor: Colors.black, body: _buildBody()));
   }
 
   Widget _buildBody() {
@@ -95,9 +107,6 @@ class _GalleryPageState extends State<GalleryPage>
                     child: VideoPlayer(_controller),
                   ),
                 ),
-                // Center(
-                //   child: _ControlsOverlay(controller: _controller),
-                // ),
                 Positioned(
                     left: 0, bottom: 0, right: 0, child: _buildControlButtons())
               ],
@@ -235,6 +244,7 @@ class _GalleryPageState extends State<GalleryPage>
         height: MediaQuery.of(context).size.height,
         fit: BoxFit.fitWidth,
         cache: true,
+        enableMemoryCache: true,
         mode: ExtendedImageMode.gesture,
         enableSlideOutPage: true,
       ),

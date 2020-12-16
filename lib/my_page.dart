@@ -115,6 +115,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
                       width: MediaQuery.of(context).size.width,
                       height: 200,
                       fit: BoxFit.cover,
+                      enableMemoryCache: true,
                     ),
                     Container(
                       width: MediaQuery.of(context).size.width,
@@ -151,6 +152,7 @@ class _MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
         File(_imageData[index].filePath),
         fit: BoxFit.cover,
         height: 200,
+        enableMemoryCache: true,
       ),
     );
   }

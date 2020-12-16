@@ -57,7 +57,18 @@ List<String> _initialhotTags = [
   'sound',
   'gocrazygonsfw',
   'worldofleah',
-  'strauzek'
+  'strauzek',
+  'heartbreakeh',
+  'nagoonimation',
+  'sessho3d',
+  'qoc_(artist)',
+  'thecount',
+  'sfmtessai',
+  'daintydjinn',
+  'video',
+  'kisxsfm',
+  'gnomfist',
+  'sageofosiris'
 ];
 
 void main() {

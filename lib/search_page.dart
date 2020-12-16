@@ -13,11 +13,12 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   List<String> _tags = List();
   TextEditingController _controller;
   List<Suggest> _suggest = List();
   GlobalKey<TextFieldTagsState> _key = GlobalKey<TextFieldTagsState>();
+  double _suggestBoxHeight = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -33,6 +34,7 @@ class _SearchPageState extends State<SearchPage>
         } else {
           setState(() {
             _suggest.clear();
+            _suggestBoxHeight = 0;
           });
         }
       });
@@ -42,96 +44,88 @@ class _SearchPageState extends State<SearchPage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: lighterPrimaryColor,
-          elevation: 0,
-          toolbarHeight: 0,
-        ),
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
         backgroundColor: lighterPrimaryColor,
-        body: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset(
-              'ic_logo.png',
-              width: MediaQuery.of(context).size.width / 2,
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
+      backgroundColor: lighterPrimaryColor,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 48),
+          Image.asset(
+            'ic_logo.png',
+            width: MediaQuery.of(context).size.width / 2,
+          ),
+          SizedBox(height: 24),
+          Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  color: Colors.white),
+              margin: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(child: _buildTagEdit()),
+                  IconButton(
+                    icon: Icon(Icons.search),
+                    color: textColor,
+                    onPressed: search,
+                  )
+                ],
+              )),
+          AnimatedContainer(
+            duration: Duration(milliseconds: 250),
+            height: _suggestBoxHeight,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                color: Colors.white),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ListView.builder(
+              itemCount: _suggest.length,
+              itemBuilder: (_, index) {
+                var item = _suggest[index];
+                return GestureDetector(
+                  onTap: () => _key.currentState.addTag(item.value),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(item.label),
+                  ),
+                );
+              },
             ),
-            SizedBox(height: 24),
-            Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    color: Colors.white),
-                margin: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldTags(
-                        key: _key,
-                        controller: _controller,
-                        tagsStyler: TagsStyler(
-                            tagDecoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(4.0)),
-                            ),
-                            tagTextStyle: TextStyle(color: Colors.white),
-                            tagCancelIcon: Icon(
-                              Icons.clear,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                            tagCancelIconPadding: EdgeInsets.all(4)),
-                        textFieldStyler: TextFieldStyler(
-                            hintText: '',
-                            helperText: '',
-                            textFieldFilled: true,
-                            helperStyle: TextStyle(fontSize: 0),
-                            textFieldBorder: InputBorder.none,
-                            textFieldFocusedBorder: InputBorder.none,
-                            textFieldEnabledBorder: InputBorder.none,
-                            textFieldDisabledBorder: InputBorder.none,
-                            isDense: false),
-                        onTag: (tag) {
-                          _tags.add(tag);
-                        },
-                        onDelete: (tag) {
-                          _tags.remove(tag);
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.search),
-                      color: textColor,
-                      onPressed: search,
-                    )
-                  ],
-                )),
-            if (_suggest.isNotEmpty)
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    color: Colors.white),
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ListView.builder(
-                  itemCount: _suggest.length,
-                  itemBuilder: (_, index) {
-                    var item = _suggest[index];
-                    return GestureDetector(
-                      onTap: () {
-                        _key.currentState.addTag(item.value);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(item.label),
-                      ),
-                    );
-                  },
-                ),
-              )
-          ],
-        )));
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagEdit() {
+    return TextFieldTags(
+        key: _key,
+        controller: _controller,
+        tagsStyler: TagsStyler(
+            tagDecoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.all(Radius.circular(4.0)),
+            ),
+            tagTextStyle: TextStyle(color: Colors.white),
+            tagCancelIcon: Icon(Icons.clear, color: Colors.white, size: 14),
+            tagCancelIconPadding: EdgeInsets.all(4)),
+        textFieldStyler: TextFieldStyler(
+            hintText: '',
+            helperText: '',
+            textFieldFilled: true,
+            helperStyle: TextStyle(fontSize: 0),
+            textFieldBorder: InputBorder.none,
+            textFieldFocusedBorder: InputBorder.none,
+            textFieldEnabledBorder: InputBorder.none,
+            textFieldDisabledBorder: InputBorder.none,
+            isDense: false),
+        onTag: (tag) => _tags.add(tag),
+        onDelete: (tag) => _tags.remove(tag));
   }
 
   void _requestAutoComplete(String key) async {
@@ -139,12 +133,18 @@ class _SearchPageState extends State<SearchPage>
     Dio dio = Dio();
     Response<String> response = await dio.request(url + key);
 
+    // if there is  multiple requests, need to check if the result is fitting the input
+    if (key != _controller.text) {
+      return;
+    }
+
     List<dynamic> suggest = jsonDecode(response.data);
 
     setState(() {
       _suggest = suggest
           .map((e) => Suggest(e['label'] as String, e['value'] as String))
           .toList();
+      _suggestBoxHeight = _suggest.isEmpty ? 0 : 200;
     });
   }
 

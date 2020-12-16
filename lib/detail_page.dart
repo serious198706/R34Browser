@@ -41,29 +41,21 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      backgroundColor: primaryColor,
-      floatingActionButton: _showFab
-          ? FloatingActionButton(
-              backgroundColor: lighterPrimaryColor,
-              onPressed: _download,
-              child: Icon(
-                Icons.file_download,
-                color: textColor,
-              ),
-            )
-          : null,
-      body: _buildBody(),
-      // appBar: AppBar(
-      //   backgroundColor: primaryColor,
-      // ),
-    ));
+      child: Scaffold(
+        backgroundColor: primaryColor,
+        floatingActionButton: _showFab
+            ? FloatingActionButton(
+                backgroundColor: lighterPrimaryColor,
+                onPressed: _download,
+                child: Icon(Icons.file_download, color: textColor),
+              )
+            : null,
+        body: _buildBody(),
+      ),
+    );
   }
 
   Widget _buildBody() {
-    // return ListView(
-    //   children: [_buildImageViewer(), _buildTags()],
-    // );
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -133,6 +125,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         width: MediaQuery.of(context).size.width,
         fit: BoxFit.fitWidth,
         cache: true,
+        enableMemoryCache: true,
         mode: ExtendedImageMode.gesture,
         enableSlideOutPage: true,
         enableLoadState: true,
@@ -162,6 +155,8 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
             widget.thumbnailUrl,
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.fitWidth,
+            cache: true,
+            enableMemoryCache: true,
             mode: ExtendedImageMode.gesture,
             enableSlideOutPage: true,
             enableLoadState: true,

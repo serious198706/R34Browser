@@ -30,7 +30,7 @@ class _HotTagsPageState extends State<HotTagsPage>
         child: Container(
           padding: EdgeInsets.all(16),
           child: Wrap(
-            children: _buildTags(),
+            children: _hotTags.map(_buildTag).toList(),
             spacing: 8.0,
             runSpacing: 4.0,
           ),
@@ -41,27 +41,21 @@ class _HotTagsPageState extends State<HotTagsPage>
     );
   }
 
-  List<Widget> _buildTags() {
-    return _hotTags
-        .map((tag) => GestureDetector(
-              child: Chip(label: Text('#$tag')),
-              onTap: () => search(tag),
-            ))
-        .toList();
+  Widget _buildTag(String tag) {
+    return GestureDetector(
+      child: Chip(label: Text('#$tag')),
+      onTap: () => search(tag),
+    );
   }
 
   void _readSaved() async {
-    _hotTags.clear();
-    // _hotTags.addAll(_initialhotTags);
-
     List<String> favTags = await getSaved();
     favTags.removeWhere((element) => element.startsWith('-'));
 
     setState(() {
+      _hotTags.clear();
       _hotTags.addAll(favTags);
     });
-
-    print(_hotTags);
   }
 
   void search(String tag) async {
@@ -74,8 +68,7 @@ class _HotTagsPageState extends State<HotTagsPage>
 
     setState(() {
       _hotTags.clear();
-      // _hotTags.addAll(_initialhotTags);
-      if (favTags != null) _hotTags.addAll(favTags);
+      _hotTags.addAll(favTags);
     });
   }
 }

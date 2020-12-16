@@ -24,7 +24,7 @@ class _SearchResultPageState extends State<SearchResultPage>
   bool isTaped = false;
   bool changed = false;
 
-  List<String> _tags = List();
+  List<String> _tags = [];
   String _title = '';
   bool fav = false;
 
@@ -56,8 +56,9 @@ class _SearchResultPageState extends State<SearchResultPage>
           // don't show fav icon when there is more than 1 tag
           if (widget.tags.length == 1)
             IconButton(
-                icon: fav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-                onPressed: _save)
+              icon: Icon(fav ? Icons.favorite : Icons.favorite_border),
+              onPressed: _save,
+            )
         ],
       ),
       body: Stack(
@@ -97,9 +98,7 @@ class _SearchResultPageState extends State<SearchResultPage>
                       child: SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 1),
                       ),
                     );
                   }
@@ -124,15 +123,19 @@ class _SearchResultPageState extends State<SearchResultPage>
   Widget _buildImage(BuildContext context, R34Image image, int index) {
     return GestureDetector(
       onTap: () async {
-        var result =
-            await Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-          var type = 0;
-          if (image.fileUrl.endsWith('webm') || image.fileUrl.endsWith('mp4')) {
-            type = 1;
-          }
-          return DetailPage(
-              type, image.thumbnailUrl, image.fileUrl, image.tags);
-        }));
+        var result = await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) {
+              var type = 0;
+              if (image.fileUrl.endsWith('webm') ||
+                  image.fileUrl.endsWith('mp4')) {
+                type = 1;
+              }
+              return DetailPage(
+                  type, image.thumbnailUrl, image.fileUrl, image.tags);
+            },
+          ),
+        );
 
         if (result != null) {
           setState(() {
@@ -152,6 +155,8 @@ class _SearchResultPageState extends State<SearchResultPage>
             width: MediaQuery.of(context).size.width / 2,
             fit: BoxFit.cover,
             enableLoadState: true,
+            cache: true,
+            enableMemoryCache: true,
             loadStateChanged: (state) {
               if (state.extendedImageLoadState == LoadState.loading) {
                 return Image.network(image.thumbnailUrl);
@@ -210,7 +215,7 @@ class _SearchResultPageState extends State<SearchResultPage>
 }
 
 class R34ImageRepository extends LoadingMoreBase<R34Image> {
-  int pageindex = 1;
+  int pageIndex = 1;
   bool _hasMore = true;
   bool forceRefresh = false;
   String allTags = '';
@@ -237,7 +242,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
   @override
   Future<bool> refresh([bool clearBeforeRequest = false]) async {
     _hasMore = true;
-    pageindex = 1;
+    pageIndex = 1;
     forceRefresh = !clearBeforeRequest;
     var result = await super.refresh(clearBeforeRequest);
     forceRefresh = false;
@@ -252,7 +257,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
           "https://rule34.xxx/index.php?page=dapi&tags=$allTags&s=post&limit=10&q=index&rating=explicit";
     } else {
       url =
-          "https://rule34.xxx/index.php?page=dapi&tags=$allTags&s=post&limit=10&q=index&rating=explicit&pid=$pageindex";
+          "https://rule34.xxx/index.php?page=dapi&tags=$allTags&s=post&limit=10&q=index&rating=explicit&pid=$pageIndex";
     }
 
     bool isSuccess = false;
@@ -276,7 +281,7 @@ class R34ImageRepository extends LoadingMoreBase<R34Image> {
       }
 
       _hasMore = posts.length != 0;
-      pageindex++;
+      pageIndex++;
       isSuccess = true;
     } catch (exception, _) {
       isSuccess = false;

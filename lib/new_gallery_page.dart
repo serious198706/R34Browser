@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:r34_browser/gallery_page.dart';
 import 'package:r34_browser/my_page.dart';
 
 class FullscreenGallery extends StatefulWidget {
@@ -19,8 +17,6 @@ class FullscreenGallery extends StatefulWidget {
 
 class _FullscreenGalleryState extends State<FullscreenGallery>
     with SingleTickerProviderStateMixin {
-  var rebuildIndex = StreamController<int>.broadcast();
-  var rebuildSwiper = StreamController<bool>.broadcast();
   AnimationController _animationController;
   Animation<double> _animation;
   Function animationListener;
@@ -41,8 +37,6 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
 
   @override
   void dispose() {
-    rebuildIndex.close();
-    rebuildSwiper.close();
     _animationController?.dispose();
     clearGestureDetailsCache();
     super.dispose();
@@ -50,8 +44,6 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-
     return Material(
       /// if you use ExtendedImageSlidePage and slideType =SlideType.onlyImage,
       /// make sure your page is transparent background
@@ -61,7 +53,6 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
         key: slidePagekey,
         slideAxis: SlideAxis.both,
         slideType: SlideType.onlyImage,
-        onSlidingPage: (state) {},
         slidePageBackgroundHandler: (offset, size) {
           final Size pageSize = MediaQuery.of(context).size;
           double opacity = offset.dy.abs() / (pageSize.height / 2.0);
@@ -69,16 +60,9 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
         },
         child: ExtendedImageGesturePageView.builder(
           itemCount: widget.data.length,
-          itemBuilder: (context, index) {
-            return _buildImage(index);
-          },
-          onPageChanged: (int index) {
-            _currentIndex = index;
-            rebuildIndex.add(index);
-          },
-          controller: PageController(
-            initialPage: _currentIndex,
-          ),
+          itemBuilder: _buildImage,
+          onPageChanged: (int index) => _currentIndex = index,
+          controller: PageController(initialPage: _currentIndex),
           canMovePage: (GestureDetails gestureDetails) =>
               gestureDetails.totalScale <= 1.0,
           scrollDirection: Axis.horizontal,
@@ -88,11 +72,12 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
     );
   }
 
-  Widget _buildImage(int index) {
+  Widget _buildImage(BuildContext context, int index) {
     return ExtendedImage.file(
       File(widget.data[index].filePath),
       fit: BoxFit.fitWidth,
       width: MediaQuery.of(context).size.width,
+      enableMemoryCache: true,
       enableSlideOutPage: true,
       mode: ExtendedImageMode.gesture,
       heroBuilderForSlidingPage: (Widget result) {
@@ -155,11 +140,5 @@ class _FullscreenGalleryState extends State<FullscreenGallery>
     _animation.addListener(animationListener);
 
     _animationController.forward();
-  }
-
-  void _go(String path) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-      return GalleryPage(path);
-    }));
   }
 }
