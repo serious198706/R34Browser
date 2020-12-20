@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:r34_browser/preference_utils.dart';
 import 'package:r34_browser/search_result_page.dart';
@@ -15,6 +18,8 @@ class _HotTagsPageState extends State<HotTagsPage>
   @override
   bool get wantKeepAlive => true;
 
+  bool _loading = true;
+
   @override
   void initState() {
     super.initState();
@@ -26,16 +31,18 @@ class _HotTagsPageState extends State<HotTagsPage>
     super.build(context);
     return Scaffold(
       backgroundColor: lighterPrimaryColor,
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Wrap(
-            children: _hotTags.map(_buildTag).toList(),
-            spacing: 8.0,
-            runSpacing: 4.0,
-          ),
-        ),
-      ),
+      body: _loading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.all(16),
+                child: Wrap(
+                  children: _hotTags.map(_buildTag).toList(),
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                ),
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.refresh), onPressed: _readSaved),
     );
@@ -52,9 +59,22 @@ class _HotTagsPageState extends State<HotTagsPage>
     List<String> favTags = await getSaved();
     favTags.removeWhere((element) => element.startsWith('-'));
 
+    Dio dio = Dio();
+    Response<String> result = await dio.get(
+        'https://service-i87eoi21-1251376388.bj.apigw.tencentcs.com/test/r34_get_fav');
+
+    var items = jsonDecode(result.data);
+
+    for (var item in items) {
+      if (!favTags.contains(item)) {
+        favTags.add(item);
+      }
+    }
+
     setState(() {
       _hotTags.clear();
       _hotTags.addAll(favTags);
+      _loading = false;
     });
   }
 

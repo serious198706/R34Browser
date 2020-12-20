@@ -68,7 +68,15 @@ List<String> _initialhotTags = [
   'video',
   'kisxsfm',
   'gnomfist',
-  'sageofosiris'
+  'sageofosiris',
+  'haneto',
+  'akt',
+  'kallenz',
+  'lazyprocrastinator',
+  'dominothecat',
+  'sanmie3d',
+  'pangxxx',
+  'saveass_'
 ];
 
 void main() {
